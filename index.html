@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa&display=swap" rel="stylesheet">
+    <title>Крестики нолики</title>
+    <style>
+        * {
+            font-family: "Comfortaa", serif;
+            font-weight: 400;
+            font-style: normal;
+            color: #000;
+        }
+
+        body {
+            background-color: #003366;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #66B2FF;
+            margin: 0;
+            text-align: center;
+            padding: 5px;
+            margin-top: 3px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 5px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border: 1px solid #000;
+        }
+
+        button {
+            width: 100px;
+            height: 40px;
+            background-color: #66B2FF;
+            border-radius: 30px;
+            border: none;
+            margin: 20px;
+            cursor: pointer;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #003366;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 30px;
+            background-color: #66B2FF;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background-color: #FFD700;
+            width: 0;
+        }
+
+        .game-container {
+            display: none;
+            text-align: center;
+        }
+
+        .setting {
+            display: grid;
+            justify-self: center;
+            margin-top: 2%;
+            padding: 2px;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .button {
+            background: #66B2FF;
+            border: none;
+            border-radius: 10px;
+            margin: 2px;
+            height: 40px;
+            width: 300px;
+        }
+
+        .title {
+            color: #66B2FF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title1 {
+            margin: 0;
+            text-align: center;
+            line-height: 1.2;
+            margin-top: 5%;
+        }
+
+        .record {
+            width: 200px;
+            height: 100px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 20px;
+            gap: 10px;
+            justify-self: center;
+            font-size: 9px;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #003366;
+            margin-top: -2px;
+        }
+
+        .hr-wiht-text {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            justify-self: center;
+            margin: 20px 0;
+            width: 320px;
+        }
+
+        .hr-wiht-text::before,
+        .hr-wiht-text::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #66B2FF;
+            margin: 0 10px;
+        }
+
+        .hr-text {
+            padding: 0 10px;
+            color: #66B2FF;
+        }
+
+        .icons {
+            display: flex;
+            width: 40px;
+            height: 40px;
+            gap: 10px;
+            margin-left: -45px;
+        }
+
+        .tik {
+            width: 40px;
+            height: 40px;
+        }
+
+        .exit {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #66B2FF;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .score {
+            color: yellow;
+            font-size: 24px;
+        }
+        
+        .small-text {
+            font-size: 16px; /* Уменьшенный размер текста */
+        }
+
+        .spacer {
+            margin-top: 10px; /* Увеличиваем расстояние между текстом и счетом */
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <h1>Загрузка...</h1>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loading-progress"></div>
+        </div>
+    </div>
+    
+    <div class="game-container" id="content">
+        <div class="title">
+            <h1 class="title1">Крестики-нолики<br>Играть с ИИ</h1>
+        </div>
+        <div class="setting">
+            <div class="record">
+                <h1 class="h1 small-text">Последовательные победы</h1>
+                <h2 id="playerScore" class="score">X0</h2>
+            </div>
+            <button class="button" id="myButton" onclick="startGameAgainstAI()">Играть с ИИ</button>
+            <button class="button" id="myButton1" onclick="startGameWithFriend()">Играть с другом</button>
+        </div>
+        <div class="hr-wiht-text">
+            <span class="hr-text">МЫ ТУТ</span>
+        </div>
+        <center>
+            <div class="icons">
+                <img src="/1.png" class="tele">
+                <img src="/2.png" class="tik">
+            </div>
+        </center>
+    </div>
+
+    <script>
+        const loadingProgress = document.getElementById('loading-progress');
+        const loadingContainer = document.querySelector('.loading-container');
+        const gameContainer = document.querySelector('.game-container');
+        const playerScoreDisplay = document.getElementById('playerScore');
+
+        let playerScore = 0;
+        let aiScore = 0;
+        let playerWins = 0; // Количество побед игрока
+        let currentPlayer = 'X'; // Текущий игрок ('X' - игрок, 'O' - ИИ)
+
+        // Функция для имитации загрузки
+        function simulateLoading() {
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    loadingContainer.style.display = 'none';
+                    gameContainer.style.display = 'block';
+                    initGame(); // Инициализация игры
+                } else {
+                    width++;
+                    loadingProgress.style.width = width + '%';
+                }
+            }, 50);
+        }
+
+        window.onload = simulateLoading;
+
+        function goToMainMenu() {
+            // Возвращаемся на главный экран
+            gameContainer.innerHTML = `
+                <div class="title">
+                    <h1 class="title1">Крестики-нолики<br>Новая игра</h1>
+                </div>
+                <div class="setting">
+                    <div class="record">
+                        <h1 class="h1 small-text">Последовательные победы</h1>
+                        <h2 id="playerScore" class="score">X${playerScore}</h2>
+                    </div>
+                    <button class="button" id="myButton" onclick="startGameAgainstAI()">Играть с ИИ</button>
+                    <button class="button" id="myButton1" onclick="window.location.href='/tic-tac-toe-multiplayer/public/index.html'">Играть с другом</button>
+                </div>
+                <div class="hr-wiht-text">
+                    <span class="hr-text">МЫ ТУТ</span>
+                </div>
+                <center>
+                    <div class="icons">
+                        <img src="/1.png" class="tele">
+                        <img src="/2.png" class="tik">
+                    </div>
+                </center>
+            `;
+        }
+
+        function startGameAgainstAI() {
+            // Очищаем экран и создаем игровое поле
+            gameContainer.innerHTML = `
+                <div class="title">
+                    <h1 class="title1">Крестики-нолики<br>Играть с ИИ</h1>
+                </div>
+                <h2 id="score" class="score">Счет: 0 | 0</h2>
+                <div class="grid" id="grid"></div>
+                <button class="exit" onclick="goToMainMenu()">Выйти</button>
+            `;
+            initGame();
+        }
+
+
+        function initGame() {
+            const grid = document.getElementById('grid');
+            let board = Array(9).fill('');
+            currentPlayer = 'X'; // Начинает игрок
+
+            createBoard();
+
+            function createBoard() {
+                grid.innerHTML = ''; // Очищаем сетку
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.addEventListener('click', () => makeMove(i));
+                    grid.appendChild(cell);
+                }
+            }
+
+            function makeMove(index) {
+                if (board[index] === '' && currentPlayer === 'X') {
+                    board[index] = currentPlayer;
+                    render();
+                    if (checkWin(currentPlayer)) {
+                        playerWins++;
+                        playerScore++;
+                        playerScoreDisplay.textContent = `X${playerScore}`; // Обновляем счет
+                        updateScoreDisplay();
+                        if (playerScore >= 5) {
+                            alert('Вы выиграли игру!');
+                            goToMainMenu(); // Возвращаемся на главный экран
+                        } else {
+                            alert('Вы выиграли! Предлагаю реванш.');
+                            initGame(); // Перезапускаем игру
+                        }
+                    } else if (board.every(cell => cell !== '')) {
+                        alert('Ничья!');
+                        initGame(); // Перезапускаем игру
+                    } else {
+                        currentPlayer = 'O'; // Переключаем на ИИ
+                        setTimeout(aiMove, 500); // Задержка перед ходом ИИ
+                    }
+                }
+            }
+
+            function aiMove() {
+                let index = findBestMove();
+
+                if (index !== undefined) {
+                    board[index] = currentPlayer;
+                    render();
+                    if (checkWin(currentPlayer)) {
+                        aiScore++;
+                        updateScoreDisplay();
+                        if (aiScore >= 5) {
+                            alert('ИИ выиграл игру!');
+                            goToMainMenu(); // Возвращаемся на главный экран
+                        } else {
+                            alert('ИИ выиграл!');
+                            initGame(); // Перезапускаем игру
+                        }
+                    } else if (board.every(cell => cell !== '')) {
+                        alert('Ничья!');
+                        initGame(); // Перезапускаем игру
+                    } else {
+                        currentPlayer = 'X'; // Переключаем обратно на игрока
+                    }
+                }
+            }
+
+            function findBestMove() {
+                // Простой алгоритм для нахождения лучшего хода
+                const winningCombinations = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // строки
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // столбцы
+                    [0, 4, 8], [2, 4, 6] // диагонали
+                ];
+
+                // Проверка на выигрыш для ИИ
+                for (let combination of winningCombinations) {
+                    const [a, b, c] = combination;
+                    if (board[a] === board[b] && board[a] === 'O' && board[c] === '') {
+                        return c; // ИИ выигрывает
+                    }
+                    if (board[a] === board[c] && board[a] === 'O' && board[b] === '') {
+                        return b; // ИИ выигрывает
+                    }
+                    if (board[b] === board[c] && board[b] === 'O' && board[a] === '') {
+                        return a; // ИИ выигрывает
+                    }
+                }
+
+                // Блокируем игрока
+                for (let combination of winningCombinations) {
+                    const [a, b, c] = combination;
+                    if (board[a] === board[b] && board[a] === 'X' && board[c] === '') {
+                        return c; // Блокируем игрока
+                    }
+                    if (board[a] === board[c] && board[a] === 'X' && board[b] === '') {
+                        return b; // Блокируем игрока
+                    }
+                    if (board[b] === board[c] && board[b] === 'X' && board[a] === '') {
+                        return a; // Блокируем игрока
+                    }
+                }
+
+                return getRandomMove(); // Если нет выигрыша или блока, случайный ход
+            }
+
+            function getRandomMove() {
+                let availableMoves = board.map((cell, index) => cell === '' ? index : null).filter(v => v !== null);
+                return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            }
+
+            function render() {
+                const cells = grid.children;
+                for (let i = 0; i < board.length; i++) {
+                    cells[i].textContent = board[i];
+                }
+            }
+
+            function checkWin(player) {
+                const winningCombinations = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // строки
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // столбцы
+                    [0, 4, 8], [2, 4, 6] // диагонали
+                ];
+                return winningCombinations.some(combination => {
+                    return combination.every(index => {
+                        return board[index] === player;
+                    });
+                });
+            }
+
+            function updateScoreDisplay() {
+                document.getElementById('score').textContent = `Счет: ${playerScore} | ${aiScore}`;
+            }
+        }
+        function startGameWithFriend() {
+            // Переход на страницу для игры с другом
+            window.location.href = '/tic-tac-toe-multiplayer/public/index.html'; // Укажите правильный путь к вашему файлу
+        }
+    </script>
+</body>
+</html>

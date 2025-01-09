@@ -47,7 +47,7 @@
 
     .settings-container {
       display: none;
-      background-color: white;
+      background-color: #f0f0f0;
       padding: 20px;
       border-radius: 10px;
       margin-top: 20px;
@@ -119,10 +119,16 @@
     button:hover {
       background-color: #005bb5;
     }
+
+    .loading {
+      font-size: 2rem;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <div class="container1" id="mainContainer">
+  <div class="loading" id="loading">Загрузка...</div>
+  <div class="container1" id="mainContainer" style="display: none;">
     <h1>Игра 2048<br><small>InnoWave Studio</small></h1>
     <button id="playButton">Играть</button>
     <button id="settingsButton">Настройки</button>
@@ -130,20 +136,20 @@
       <div class="settings-row">
         <span class="settings-label">Вибрация:</span>
         <label class="switch">
-          <input type="checkbox">
+          <input type="checkbox" id="vibrationToggle">
           <span class="slider round"></span>
         </label>
       </div>
       <div class="settings-row">
         <span class="settings-label">Звук:</span>
         <label class="switch">
-          <input type="checkbox">
+          <input type="checkbox" id="soundToggle">
           <span class="slider round"></span>
         </label>
       </div>
       <div class="settings-row">
         <span class="settings-label">Тема:</span>
-        <select>
+        <select id="themeSelect">
           <option value="light">Светлая</option>
           <option value="dark">Темная</option>
         </select>
@@ -162,206 +168,224 @@
 
   <script>
     const playButton = document.getElementById('playButton');
-const mainContainer = document.getElementById('mainContainer');
-const gameContainer = document.getElementById('gameContainer');
-let grid = [];
-let score = 0;
-const defaultBackgroundColor = '#faf8ef'; // Цвет фона ячеек по умолчанию
+    const mainContainer = document.getElementById('mainContainer');
+    const gameContainer = document.getElementById('gameContainer');
+    const loadingScreen = document.getElementById('loading');
+    let grid = [];
+    let score = 0;
+    const defaultBackgroundColor = '#faf8ef'; // Цвет фона ячеек по умолчанию
 
-playButton.addEventListener('click', () => {
-    mainContainer.style.display = 'none'; // Скрываем первый контейнер
-    gameContainer.style.display = 'block'; // Показываем второй контейнер
-    startGame(); // Функция, чтобы стартовать игру
-});
+    // Загрузка игры
+    setTimeout(() => {
+      loadingScreen.style.display = 'none'; // Скрыть экран загрузки
+      mainContainer.style.display = 'grid'; // Показать основной контейнер
+    }, 5000); // 5 секунд загрузки
 
-function startGame() {
-    setup();
-    updateGrid();
-    window.addEventListener('touchstart', handleTouchStart, false);
-    window.addEventListener('touchmove', handleTouchMove, false);
-}
-
-function setup() {
-    for (let i = 0; i < 4; i++) {
-        grid[i] = [0, 0, 0, 0];
-    }
-    generateTile();
-    generateTile();
-}
-
-function generateTile() {
-    let emptyTiles = [];
-    grid.forEach((row, i) => {
-        row.forEach((value, j) => {
-            if (value === 0) emptyTiles.push([i, j]);
-        });
+    playButton.addEventListener('click', () => {
+      mainContainer.style.display = 'none'; // Скрываем первый контейнер
+      gameContainer.style.display = 'block'; // Показываем второй контейнер
+      startGame(); // Функция, чтобы стартовать игру
     });
 
-    if (emptyTiles.length > 0) {
+    function startGame() {
+      setup();
+      updateGrid();
+      window.addEventListener('touchstart', handleTouchStart, false);
+      window.addEventListener('touchmove', handleTouchMove, false);
+    }
+
+    function setup() {
+      for (let i = 0; i < 4; i++) {
+        grid[i] = [0, 0, 0, 0];
+      }
+      generateTile();
+      generateTile();
+    }
+
+    function generateTile() {
+      let emptyTiles = [];
+      grid.forEach((row, i) => {
+        row.forEach((value, j) => {
+          if (value === 0) emptyTiles.push([i, j]);
+        });
+      });
+
+      if (emptyTiles.length > 0) {
         let [i, j] = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
         grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+      }
     }
-}
 
-function colorCell(value) {
-    if (value === 0) return defaultBackgroundColor;
-    if (value === 2) return '#ede0c8';
-    if (value === 4) return '#f2b179';
-    if (value === 8) return '#f59563';
-    if (value === 16) return '#f67c5f';
-    if (value === 32) return '#f76341';
-    if (value === 64) return '#f44336';
-    if (value === 128) return '#edc53f';
-    if (value === 256) return '#edc22e';
-    if (value === 512) return '#edc22d';
-    if (value === 1024) return '#edc22c';
-    if (value === 2048) return '#edc21e';
-    return '#cdc1b4';
-}
+    function colorCell(value) {
+      if (value === 0) return defaultBackgroundColor;
+      if (value === 2) return '#ede0c8';
+      if (value === 4) return '#f2b179';
+      if (value === 8) return '#f59563';
+      if (value === 16) return '#f67c5f';
+      if (value === 32) return '#f76341';
+      if (value === 64) return '#f44336';
+      if (value === 128) return '#edc53f';
+      if (value === 256) return '#edc22e';
+      if (value === 512) return '#edc22d';
+      if (value === 1024) return '#edc22c';
+      if (value === 2048) return '#edc21e';
+      return '#cdc1b4';
+    }
 
-function updateGrid() {
-    const gridElement = document.getElementById('grid');
-    gridElement.innerHTML = '';
-    grid.forEach(row => {
+    function updateGrid() {
+      const gridElement = document.getElementById('grid');
+      gridElement.innerHTML = '';
+      grid.forEach(row => {
         row.forEach(value => {
-            const cell = document.createElement('div');
-            cell.classList.add('cell');
-            cell.textContent = value > 0 ? value : '';
-            cell.style.backgroundColor = colorCell(value);
-            gridElement.appendChild(cell);
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          cell.textContent = value > 0 ? value : '';
+          cell.style.backgroundColor = colorCell(value);
+          gridElement.appendChild(cell);
         });
-    });
-    document.getElementById('score').textContent = `Счет: ${score}`;
-    checkGameOver();
-}
+      });
+      document.getElementById('score').textContent = `Счет: ${score}`;
+      checkGameOver();
+    }
 
-let xDown = null;
-let yDown = null;
+    let xDown = null;
+    let yDown = null;
 
-function handleTouchStart(evt) {
-    const firstTouch = evt.touches[0];
-    xDown = firstTouch.clientX;
-    yDown = firstTouch.clientY;
-}
+    function handleTouchStart(evt) {
+      const firstTouch = evt.touches[0];
+      xDown = firstTouch.clientX;
+      yDown = firstTouch.clientY;
+    }
 
-function handleTouchMove(evt) {
-    if (!xDown || !yDown) return;
-    const xUp = evt.touches[0].clientX;
-    const yUp = evt.touches[0].clientY;
-    const xDiff = xDown - xUp;
-    const yDiff = yDown - yUp;
+    function handleTouchMove(evt) {
+      if (!xDown || !yDown) return;
+      const xUp = evt.touches[0].clientX;
+      const yUp = evt.touches[0].clientY;
+      const xDiff = xDown - xUp;
+      const yDiff = yDown - yUp;
 
-    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+      if (Math.abs(xDiff) > Math.abs(yDiff)) {
         xDiff > 0 ? move('left') : move('right');
-    } else {
+      } else {
         yDiff > 0 ? move('up') : move('down');
-    }
-    xDown = null;
-    yDown = null;
-}
-
-function move(direction) {
-    let previousGrid = JSON.stringify(grid);
-
-    if (direction === 'up') {
-        for (let j = 0; j < 4; j++) {
-            let stack = [];
-            for (let i = 0; i < 4; i++) {
-                if (grid[i][j] !== 0) stack.push(grid[i][j]);
-            }
-            merge(stack);
-            for (let i = 0; i < 4; i++) {
-                grid[i][j] = stack[i] || 0;
-            }
-        }
-    } else if (direction === 'down') {
-        for (let j = 0; j < 4; j++) {
-            let stack = [];
-            for (let i = 3; i >= 0; i--) {
-                if (grid[i][j] !== 0) stack.push(grid[i][j]);
-            }
-            merge(stack);
-            for (let i = 3; i >= 0; i--) {
-                grid[i][j] = stack[3 - i] || 0;
-            }
-        }
-    } else if (direction === 'left') {
-        for (let i = 0; i < 4; i++) {
-            let stack = [];
-            for (let j = 0; j < 4; j++) {
-                if (grid[i][j] !== 0) stack.push(grid[i][j]);
-            }
-            merge(stack);
-            for (let j = 0; j < 4; j++) {
-                grid[i][j] = stack[j] || 0;
-            }
-        }
-    } else if (direction === 'right') {
-        for (let i = 0; i < 4; i++) {
-            let stack = [];
-            for (let j = 3; j >= 0; j--) {
-                if (grid[i][j] !== 0) stack.push(grid[i][j]);
-            }
-            merge(stack);
-            for (let j = 3; j >= 0; j--) {
-                grid[i][j] = stack[3 - j] || 0;
-            }
-        }
+      }
+      xDown = null;
+      yDown = null;
     }
 
-    if (previousGrid !== JSON.stringify(grid)) {
+    function move(direction) {
+      let previousGrid = JSON.stringify(grid);
+
+      if (direction === 'up') {
+        for (let j = 0; j < 4; j++) {
+          let stack = [];
+          for (let i = 0; i < 4; i++) {
+            if (grid[i][j] !== 0) stack.push(grid[i][j]);
+          }
+          merge(stack);
+          for (let i = 0; i < 4; i++) {
+            grid[i][j] = stack[i] || 0;
+          }
+        }
+      } else if (direction === 'down') {
+        for (let j = 0; j < 4; j++) {
+          let stack = [];
+          for (let i = 3; i >= 0; i--) {
+            if (grid[i][j] !== 0) stack.push(grid[i][j]);
+          }
+          merge(stack);
+          for (let i = 3; i >= 0; i--) {
+            grid[i][j] = stack[3 - i] || 0;
+          }
+        }
+      } else if (direction === 'left') {
+        for (let i = 0; i < 4; i++) {
+          let stack = [];
+          for (let j = 0; j < 4; j++) {
+            if (grid[i][j] !== 0) stack.push(grid[i][j]);
+          }
+          merge(stack);
+          for (let j = 0; j < 4; j++) {
+            grid[i][j] = stack[j] || 0;
+          }
+        }
+      } else if (direction === 'right') {
+        for (let i = 0; i < 4; i++) {
+          let stack = [];
+          for (let j = 3; j >= 0; j--) {
+            if (grid[i][j] !== 0) stack.push(grid[i][j]);
+          }
+          merge(stack);
+          for (let j = 3; j >= 0; j--) {
+            grid[i][j] = stack[3 - j] || 0;
+          }
+        }
+      }
+
+      if (previousGrid !== JSON.stringify(grid)) {
         generateTile();
         updateGrid();
+        // Включение вибрации, если она активирована
+        if (document.getElementById('vibrationToggle').checked) {
+          navigator.vibrate(100); // Вибрация на 100 мс
+        }
+      }
     }
-}
 
-function merge(stack) {
-    for (let i = 0; i < stack.length - 1; i++) {
+    function merge(stack) {
+      for (let i = 0; i < stack.length - 1; i++) {
         if (stack[i] === stack[i + 1]) {
-            stack[i] *= 2;
-            score += stack[i];
-            stack.splice(i + 1, 1);
+          stack[i] *= 2;
+          score += stack[i];
+          stack.splice(i + 1, 1);
         }
+      }
     }
-}
 
-function checkGameOver() {
-    const emptyTiles = grid.flat().filter(value => value === 0).length;
-    const ableToMerge = checkMergeable();
+    function checkGameOver() {
+      const emptyTiles = grid.flat().filter(value => value === 0).length;
+      const ableToMerge = checkMergeable();
 
-    if (emptyTiles === 0 && !ableToMerge) {
+      if (emptyTiles === 0 && !ableToMerge) {
         showGameOver();
+      }
     }
-}
 
-function checkMergeable() {
-    for (let i = 0; i < 4; i++) {
+    function checkMergeable() {
+      for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 3; j++) {
-            if (grid[i][j] === grid[i][j + 1] || grid[j][i] === grid[j + 1][i]) {
-                return true;
-            }
+          if (grid[i][j] === grid[i][j + 1] || grid[j][i] === grid[j + 1][i]) {
+            return true;
+          }
         }
+      }
+      return false;
     }
-    return false;
-}
 
-function showGameOver() {
-    const gameOverElement = document.getElementById('game-over');
-    gameOverElement.style.display = 'block';
-}
+    function showGameOver() {
+      const gameOverElement = document.getElementById('game-over');
+      gameOverElement.style.display = 'block';
+    }
 
-function restart() {
-    score = 0;
-    setup();
-    updateGrid();
-    document.getElementById('game-over').style.display = 'none'; // Скрыть сообщение о проигрыше
-}
+    function restart() {
+      score = 0;
+      setup();
+      updateGrid();
+      document.getElementById('game-over').style.display = 'none'; // Скрыть сообщение о проигрыше
+    }
 
-function exitGame() {
-    mainContainer.style.display = 'grid'; // Показываем первый контейнер снова
-    gameContainer.style.display = 'none'; // Скрываем второй контейнер
-}
+    function exitGame() {
+      mainContainer.style.display = 'grid'; // Показываем первый контейнер снова
+      gameContainer.style.display = 'none'; // Скрываем второй контейнер
+    }
+
+    // Обработчик для кнопки настроек
+    document.getElementById('settingsButton').addEventListener('click', () => {
+      const settingsContainer = document.getElementById('settings');
+      settingsContainer.classList.toggle('show'); // Показать/скрыть настройки
+    });
   </script>
 </body>
 </html>
 
+Найти еще
